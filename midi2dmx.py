@@ -18,7 +18,27 @@ from rtmidi.midiconstants import NOTE_ON, CONTROL_CHANGE
 log = logging.getLogger('midiin_callback')
 logging.basicConfig(level=logging.DEBUG)
 
-
+# Global parameter class
+class param:
+  thereminRangeStart = 0
+  thereminRangeEnd = 127
+  hsvRangeStart = 50
+  hsvRangeEnd = 310
+  hsvOffset = 240
+  hsvSaturation = 1
+  hsvValue = 1
+  fixtures = 6
+  fixtureOffset = 30
+  dimmer = 255
+  channels =	{
+    "R": 0,
+    "G": 1,
+    "B": 2,
+    "W": 3,
+    "D": 4,
+    "S": 5
+  }
+  
 class MidiInputHandler(object):
     def __init__(self, port):
         self.port = port
