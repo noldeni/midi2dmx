@@ -1,0 +1,27 @@
+https://github.com/spacemanspiff2007/PyArtNet
+
+pyartnet
+
+pyartnet is a python implementation of the ArtNet protocol using asyncio.
+Usage
+
+    node = ArtNetNode('IP')
+    node.start()
+
+    universe = node.add_universe(0)
+    channel  = universe.add_channel(129,3)
+
+    channel.add_fade([255,0,0], 5000)
+
+https://github.com/ozel/py-artnet
+
+py-art-net
+
+Python art net interface. with patterns you can run for the ledpoles and the ledmatrix fridgefire made.
+
+or anything that has a network based artnet interface.
+
+I made it easier to config and run patterns with python code.
+Dependencies.
+
+    python2.7 source
