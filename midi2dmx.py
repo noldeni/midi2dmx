@@ -30,26 +30,26 @@ class MidiInputHandler(object):
         if message[0] & 0xF0 == NOTE_ON:
             status, note, velocity = message
             channel = (status & 0xF) + 1
-            color = self.__getColor__(note)
-            self.__sendDMX__(color)
-            print("Keyboard: Channel[%s] Note[%s] Velocity[%s] Color[%s]" % (channel, note, velocity, color))
+            hsvColor = self.__getColor__(note)
+            self.__sendDMX__(hsvColor)
+            print("Keyboard: Channel[%s] Note[%s] Velocity[%s] Color[%s]" % (channel, note, velocity, hsvColor))
         if message[0] & 0xF0 == CONTROL_CHANGE:
             status, note, velocity = message
             if note == 20:
                 channel = (status & 0xF) + 1
-                color = self.__getColor__(velocity)
-                self.__sendDMX__(color)
-                print("Theremin: Channel[%s] Note[%s] Velocity[%s] Color[%s]" % (channel, note, velocity, color))
+                hsvColor = self.__getColor__(velocity)
+                self.__sendDMX__(hsvColor)
+                print("Theremin: Channel[%s] Note[%s] Velocity[%s] Color[%s]" % (channel, note, velocity, hsvColor))
         #print("[%s] @%0.6f %r" % (self.port, self._wallclock, message))
 
-    def __sendDMX__(self, color):
+    def __sendDMX__(self, hsvColor):
         defaultValue = (0, 255, 0) # white off, dimmer 100%, effect off
         fixture1 = (0, 0, 255, 0, 255, 0) #Blau maximum
         fixture2 = (0, 255, 0, 0, 255, 0) #Grün maximum
         fixture3 = (255, 0, 0, 0, 255, 0) #Rot maximum
         fixture4 = (0, 0, 255, 0, 255, 0) #Blau maximum
         fixture5 = (0, 255, 0, 0, 255, 0) #Grün maximum
-        fixture6 = color + defaultValue
+        fixture6 = hsvColor + defaultValue
         sender[1].dmx_data = fixture1 + fixture2 + fixture3 + fixture4 + fixture5 + fixture6
 
     def __getColor__(self, note):
