@@ -50,14 +50,14 @@ class MidiInputHandler(object):
         if message[0] & 0xF0 == NOTE_ON:
             status, note, velocity = message
             channel = (status & 0xF) + 1
-            hsvColor = self.__getColor__(note)
+            hsvColor = self.getHsvColor(note)
             self.__sendDMX__(hsvColor)
             print("Keyboard: Channel[%s] Note[%s] Velocity[%s] Color[%s]" % (channel, note, velocity, hsvColor))
         if message[0] & 0xF0 == CONTROL_CHANGE:
             status, note, velocity = message
             if note == 20:
                 channel = (status & 0xF) + 1
-                hsvColor = self.__getColor__(velocity)
+                hsvColor = self.getHsvColor(velocity)
                 self.__sendDMX__(hsvColor)
                 print("Theremin: Channel[%s] Note[%s] Velocity[%s] Color[%s]" % (channel, note, velocity, hsvColor))
         #print("[%s] @%0.6f %r" % (self.port, self._wallclock, message))
