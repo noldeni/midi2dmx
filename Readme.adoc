@@ -1,3 +1,41 @@
+Der Thermini sendet keine NoteOn/NoteOff Werte sondern Control/Mode Change (176 dez.) auf Channel 1.
+Dabei ist der Wert 2 für Volume und 20 für Pitch.
+Der Wertebereich geht von 0 - 127.
+
+.Pitch
++++[176, 20, 60] => Chan 1 / Control/Mode change / Pitch / 60+++
++++[176, 20, 63] => Chan 1 / Control/Mode change / Pitch / 63+++
++++[176, 20, 65] => Chan 1 / Control/Mode change / Pitch / 65+++
++++[176, 20, 68] => Chan 1 / Control/Mode change / Pitch / 68+++
+
+.Volume
++++[176, 2, 125] => Chan 1 / Control/Mode change / Volume / 125+++
++++[176, 2, 60] => Chan 1 / Control/Mode change / Volume / 60+++
+
+. Der MIDI CallbackHandler bekommt eine MIDI Message
+. Ist es NoteOn/NoteOff oder Control Change?
+
+.. NoteOn/NoteOff
+
+.. Control Change
+... Ist es Volume (2) oder Pitch (20)?
+
+.... Volume
+
+  Der Wert in der Variable param.currentVolume gespeichert
+  
+.... Pitch
+
+  Der Wert wird an die Methode _send_ übergeben
+  
+== Send(value)
+
+. map value to defined ranges (param)
+
+  Damit bekomme ich einen Wert zwischen 0 und 360.
+
+. Umrechnen des Werts in RGB  
+
 https://github.com/spacemanspiff2007/PyArtNet
 
 pyartnet
