@@ -38,7 +38,7 @@ class param:
     "D": 4,
     "S": 5
   }
-  
+
 class MidiInputHandler(object):
     def __init__(self, port):
         self.port = port
@@ -71,6 +71,16 @@ class MidiInputHandler(object):
         fixture5 = (0, 255, 0, 0, 255, 0) #Grün maximum
         fixture6 = hsvColor + defaultValue
         sender[1].dmx_data = fixture1 + fixture2 + fixture3 + fixture4 + fixture5 + fixture6
+
+    def getHsvColor(note):
+        colorvalue = map(note, param.thereminRangeStart, param.thereminRangeEnd, param.hsvRangeStart, param.hsvRangeEnd)
+        colorvalue += param.hsvOffset
+        if colorvalue > param.hsvRangeEnd:
+        colorvalue -= param.hsvRangeEnd
+        return colorvalue
+
+    def map(x, in_min, in_max, out_min, out_max):
+        return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
     def __getColor__(self, note):
         rangeStart = 0
