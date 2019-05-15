@@ -72,6 +72,21 @@ class MidiInputHandler(object):
         fixture6 = hsvColor + defaultValue
         sender[1].dmx_data = fixture1 + fixture2 + fixture3 + fixture4 + fixture5 + fixture6
 
+    def __sendOffsetColor__(self, hsvColor):
+        defaultValue = (0, 255, 0) # white off, dimmer 100%, effect off
+        rgb = __hsvToRgb__(hsvColor, param.hsvSaturation, param.hsvValue)
+        for i in range(1, param.fixtures + 1):
+            data += rgb + defaultValue
+            rgb = __hsvToRgb__(hsvColor + param.fixtureOffset, param.hsvSaturation, param.hsvValue)
+        sender[1].dmx_data = data
+
+    def __sendEqualColor__(self, hsvColor):
+        defaultValue = (0, 255, 0) # white off, dimmer 100%, effect off
+        rgb = __hsvToRgb__(hsvColor, param.hsvSaturation, param.hsvValue)
+        for i in range(1, param.fixtures + 1):
+            data += rgb + defaultValue
+        sender[1].dmx_data = data
+
     def getHsvColor(note):
         colorvalue = map(note, param.thereminRangeStart, param.thereminRangeEnd, param.hsvRangeStart, param.hsvRangeEnd)
         colorvalue += param.hsvOffset
