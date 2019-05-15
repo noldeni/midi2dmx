@@ -55,7 +55,9 @@ class MidiInputHandler(object):
             print("Keyboard: Channel[%s] Note[%s] Velocity[%s] Color[%s]" % (channel, note, velocity, hsvColor))
         if message[0] & 0xF0 == CONTROL_CHANGE:
             status, note, velocity = message
-            if note == 20:
+            if note == 2:
+                dimmer = velocity
+            elif note == 20:
                 channel = (status & 0xF) + 1
                 hsvColor = self.getHsvColor(velocity)
                 self.__sendDMX__(hsvColor)
@@ -106,7 +108,7 @@ class MidiInputHandler(object):
         rgb = self.__hsv_color__(colorvalue, saturation, value)
         return rgb
 
-    def __hsv_color__(self, h, s, v):
+    def __hsvToRgb__(self, h, s, v):
         h = float(h)
         s = float(s)
         v = float(v)
