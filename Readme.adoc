@@ -61,6 +61,8 @@ packet = bytearray(packet_size)		# create packet for Artnet
 	for i in range(packet_size):  	# Fill buffer with random stuff
 		packet[i] = random.randint(0, 255)
 
+Beispiel stupid-midi2dmx.py muss noch komplettiert werden.
+
 https://github.com/spacemanspiff2007/PyArtNet
 
 pyartnet
