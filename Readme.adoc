@@ -36,6 +36,17 @@ Der Wertebereich geht von 0 - 127.
 
 . Umrechnen des Werts in RGB  
 
+== Datentypen
+
+Wenn ein Byte Array verwendet werden muss, kann ein Tuple wie folgt umgewandelt werden:
+
+    def dmxData(self, data: tuple):
+        newData = [0]*512
+        for i in range(0, min(len(data), 512)):
+          newData[i] = data[i]
+
+Diese Funktion stamm aus https://github.com/Hundemeier/sacn/blob/master/sacn/messages/data_packet.py[DataPacket].
+
 == Examples
 
 === StupidArtnet
