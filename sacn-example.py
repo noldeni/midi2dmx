@@ -8,8 +8,8 @@ import random
 class param:
   thereminRangeStart = 0
   thereminRangeEnd = 127
-  hsvRangeStart = 50
-  hsvRangeEnd = 310
+  hsvRangeStart = 0
+  hsvRangeEnd = 360
   hsvOffset = 240
   hsvSaturation = 1
   hsvValue = 1
@@ -41,6 +41,16 @@ def sendOffsetColor(hsvColor):
         data += rgb + defaultValue
         rgb = hsvToRgb(hsvColor + param.fixtureOffset, param.hsvSaturation, param.hsvValue)
     sender[1].dmx_data = data
+
+def mapToneToColor(note):
+    colorvalue = map(note, param.thereminRangeStart, param.thereminRangeEnd, param.hsvRangeStart, param.hsvRangeEnd)
+    colorvalue += param.hsvOffset
+    if colorvalue > param.hsvRangeEnd:
+    colorvalue -= param.hsvRangeEnd
+    return colorvalue
+
+def map(x, in_min, in_max, out_min, out_max):
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
 def hsvToRgb(h, s, v):
     h = float(h)
@@ -76,8 +86,17 @@ sender.activate_output(1)  # start sending out data in the 1st universe
 sender[1].destination = "192.168.56.1"  # or provide unicast information.
 # Keep in mind that if multicast is on, unicast is not used
 #sender[1].dmx_data = (1, 2, 3, 4)  # some test DMX data
-for i in range(1, 360):
-    #sendEqualColor(random.randint(0, 360))
-    sendOffsetColor(random.randint(0, 360))
-time.sleep(60)  # send the data for 60 seconds
-sender.stop()  # do not forget to stop the sender
+
+print("Entering main loop. Press Control-C to exit.")
+try:
+    # Just wait for keyboard interrupt,
+    # everything else is handled via the input callback.
+    while True:
+        mappedColorValue = mapToneToColor(random.randint(0, 127))
+        sendOffsetColor(mappedColorValue)
+        time.sleep(5)
+except KeyboardInterrupt:
+    print('Interrupted.')
+finally:
+    print("Exit.")
+    sender.stop()  # do not forget to stop the sender
