@@ -22,14 +22,16 @@ logging.basicConfig(level=logging.DEBUG)
 class param:
   thereminRangeStart = 0
   thereminRangeEnd = 127
-  hsvRangeStart = 50
-  hsvRangeEnd = 310
+  hsvRangeStart = 0
+  hsvRangeEnd = 360
   hsvOffset = 240
   hsvSaturation = 1
   hsvValue = 1
   fixtures = 6
   fixtureOffset = 30
   dimmer = 255
+  operationMode = "test"
+  olaserverip = "192.168.178.12"
   channels =	{
     "R": 0,
     "G": 1,
@@ -50,46 +52,56 @@ class MidiInputHandler(object):
         if message[0] & 0xF0 == NOTE_ON:
             status, note, velocity = message
             channel = (status & 0xF) + 1
-            hsvColor = self.getHsvColor(note)
-            self.__sendDMX__(hsvColor)
-            print("Keyboard: Channel[%s] Note[%s] Velocity[%s] Color[%s]" % (channel, note, velocity, hsvColor))
+            mappedColorValue = self.mapToneToColor(note)
+            self.__sendDMX__(mappedColorValue)
+            print("Keyboard: Channel[%s] Note[%s] Velocity[%s] Color[%s]" % (channel, note, velocity, mappedColorValue))
         if message[0] & 0xF0 == CONTROL_CHANGE:
             status, note, velocity = message
             if note == 2:
-                dimmer = velocity
+                param.dimmer = velocity
             elif note == 20:
                 channel = (status & 0xF) + 1
-                hsvColor = self.getHsvColor(velocity)
-                self.__sendDMX__(hsvColor)
-                print("Theremin: Channel[%s] Note[%s] Velocity[%s] Color[%s]" % (channel, note, velocity, hsvColor))
+                mappedColorValue = self.mapToneToColor(velocity)
+                self.__sendDMX__(mappedColorValue)
+                print("Theremin: Channel[%s] Note[%s] Velocity[%s] Color[%s]" % (channel, note, velocity, mappedColorValue))
         #print("[%s] @%0.6f %r" % (self.port, self._wallclock, message))
 
-    def __sendDMX__(self, hsvColor):
-        defaultValue = (0, 255, 0) # white off, dimmer 100%, effect off
-        fixture1 = (0, 0, 255, 0, 255, 0) #Blau maximum
-        fixture2 = (0, 255, 0, 0, 255, 0) #Grün maximum
-        fixture3 = (255, 0, 0, 0, 255, 0) #Rot maximum
-        fixture4 = (0, 0, 255, 0, 255, 0) #Blau maximum
-        fixture5 = (0, 255, 0, 0, 255, 0) #Grün maximum
-        fixture6 = hsvColor + defaultValue
-        sender[1].dmx_data = fixture1 + fixture2 + fixture3 + fixture4 + fixture5 + fixture6
+    def __sendDMX__(self, mappedColorValue):
+        if param.operationMode = "equal":
+            print('Color wheel')
+        elif param.operationMode = "wheel":
+            print('Zero')
+        elif param.operationMode = "wheel":
+            print('Single')
+        else:
+            print('Testmode')
+            defaultValue = (0, param.dimmer, 0) # white off, dimmer 100%, effect off
+            fixture1 = (0, 0, 255) + defaultValue #Blau maximum
+            fixture2 = (0, 255, 0) + defaultValue #Grün maximum
+            fixture3 = (255, 0, 0) + defaultValue #Rot maximum
+            fixture4 = (0, 0, 255) + defaultValue #Blau maximum
+            fixture5 = (0, 255, 0) + defaultValue #Grün maximum
+            fixture6 = mappedColorValue + defaultValue
+            sender[1].dmx_data = fixture1 + fixture2 + fixture3 + fixture4 + fixture5 + fixture6
 
-    def __sendOffsetColor__(self, hsvColor):
-        defaultValue = (0, 255, 0) # white off, dimmer 100%, effect off
-        rgb = __hsvToRgb__(hsvColor, param.hsvSaturation, param.hsvValue)
+    def __sendOffsetColor__(self, mappedColorValue):
+        defaultValue = (0, param.dimmer, 0) # white off, dimmer 100%, effect off
+        rgb = __hsvToRgb__(mappedColorValue, param.hsvSaturation, param.hsvValue)
+        data = ()
         for i in range(1, param.fixtures + 1):
             data += rgb + defaultValue
-            rgb = __hsvToRgb__(hsvColor + param.fixtureOffset, param.hsvSaturation, param.hsvValue)
+            rgb = __hsvToRgb__(mappedColorValue + param.fixtureOffset, param.hsvSaturation, param.hsvValue)
         sender[1].dmx_data = data
 
-    def __sendEqualColor__(self, hsvColor):
-        defaultValue = (0, 255, 0) # white off, dimmer 100%, effect off
-        rgb = __hsvToRgb__(hsvColor, param.hsvSaturation, param.hsvValue)
+    def __sendEqualColor__(self, mappedColorValue):
+        defaultValue = (0, param.dimmer, 0) # white off, dimmer 100%, effect off
+        rgb = __hsvToRgb__(mappedColorValue, param.hsvSaturation, param.hsvValue)
+        data = ()
         for i in range(1, param.fixtures + 1):
             data += rgb + defaultValue
         sender[1].dmx_data = data
 
-    def getHsvColor(note):
+    def mapToneToColor(note):
         colorvalue = map(note, param.thereminRangeStart, param.thereminRangeEnd, param.hsvRangeStart, param.hsvRangeEnd)
         colorvalue += param.hsvOffset
         if colorvalue > param.hsvRangeEnd:
@@ -98,15 +110,6 @@ class MidiInputHandler(object):
 
     def map(x, in_min, in_max, out_min, out_max):
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
-
-    def __getColor__(self, note):
-        rangeStart = 0
-        rangeEnd = 127
-        saturation = 1
-        value = 1
-        colorvalue = int((note - rangeStart) * 360/((rangeEnd - rangeStart) + 1))
-        rgb = self.__hsv_color__(colorvalue, saturation, value)
-        return rgb
 
     def __hsvToRgb__(self, h, s, v):
         h = float(h)
@@ -151,8 +154,8 @@ midiin.set_callback(MidiInputHandler(port_name))
 sender = sacn.sACNsender()  # provide an IP-Address to bind to if you are using Windows and want to use multicast
 sender.start()  # start the sending thread
 sender.activate_output(1)  # start sending out data in the 1st universe
-sender[1].multicast = True  # set multicast to True
-# sender[1].destination = "192.168.1.20"  # or provide unicast information.
+#sender[1].multicast = True  # set multicast to True
+sender[1].destination = param.olaserverip  # or provide unicast information.
 # Keep in mind that if multicast is on, unicast is not used
 #sender[1].dmx_data = (1, 2, 3, 4)  # some test DMX data
 
