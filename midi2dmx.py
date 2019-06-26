@@ -67,11 +67,11 @@ class MidiInputHandler(object):
         #print("[%s] @%0.6f %r" % (self.port, self._wallclock, message))
 
     def __sendDMX__(self, mappedColorValue):
-        if param.operationMode = "equal":
+        if param.operationMode == "equal":
             print('Color wheel')
-        elif param.operationMode = "wheel":
+        elif param.operationMode == "wheel":
             print('Zero')
-        elif param.operationMode = "wheel":
+        elif param.operationMode == "wheel":
             print('Single')
         else:
             print('Testmode')
@@ -86,29 +86,29 @@ class MidiInputHandler(object):
 
     def __sendOffsetColor__(self, mappedColorValue):
         defaultValue = (0, param.dimmer, 0) # white off, dimmer 100%, effect off
-        rgb = __hsvToRgb__(mappedColorValue, param.hsvSaturation, param.hsvValue)
+        rgb = self.__hsvToRgb__(mappedColorValue, param.hsvSaturation, param.hsvValue)
         data = ()
         for i in range(1, param.fixtures + 1):
             data += rgb + defaultValue
-            rgb = __hsvToRgb__(mappedColorValue + param.fixtureOffset, param.hsvSaturation, param.hsvValue)
+            rgb = self.__hsvToRgb__(mappedColorValue + param.fixtureOffset, param.hsvSaturation, param.hsvValue)
         sender[1].dmx_data = data
 
     def __sendEqualColor__(self, mappedColorValue):
         defaultValue = (0, param.dimmer, 0) # white off, dimmer 100%, effect off
-        rgb = __hsvToRgb__(mappedColorValue, param.hsvSaturation, param.hsvValue)
+        rgb = self.__hsvToRgb__(mappedColorValue, param.hsvSaturation, param.hsvValue)
         data = ()
         for i in range(1, param.fixtures + 1):
             data += rgb + defaultValue
         sender[1].dmx_data = data
 
-    def mapToneToColor(note):
-        colorvalue = map(note, param.thereminRangeStart, param.thereminRangeEnd, param.hsvRangeStart, param.hsvRangeEnd)
+    def mapToneToColor(self, note):
+        colorvalue = self.map(note, param.thereminRangeStart, param.thereminRangeEnd, param.hsvRangeStart, param.hsvRangeEnd)
         colorvalue += param.hsvOffset
         if colorvalue > param.hsvRangeEnd:
-        colorvalue -= param.hsvRangeEnd
+            colorvalue -= param.hsvRangeEnd
         return colorvalue
 
-    def map(x, in_min, in_max, out_min, out_max):
+    def map(self, x, in_min, in_max, out_min, out_max):
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
     def __hsvToRgb__(self, h, s, v):
