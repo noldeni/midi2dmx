@@ -13,7 +13,7 @@ class param:
   hsvOffset = 240
   hsvSaturation = 1
   hsvValue = 1
-  fixtures = 6
+  fixtures = 12
   fixtureOffset = 30
   dimmer = 255
   channels =	{
@@ -46,7 +46,7 @@ def mapToneToColor(note):
     colorvalue = map(note, param.thereminRangeStart, param.thereminRangeEnd, param.hsvRangeStart, param.hsvRangeEnd)
     colorvalue += param.hsvOffset
     if colorvalue > param.hsvRangeEnd:
-    colorvalue -= param.hsvRangeEnd
+        colorvalue -= param.hsvRangeEnd
     return colorvalue
 
 def map(x, in_min, in_max, out_min, out_max):
@@ -83,7 +83,9 @@ sender = sacn.sACNsender()  # provide an IP-Address to bind to if you are using 
 sender.start()  # start the sending thread
 sender.activate_output(1)  # start sending out data in the 1st universe
 # sender[1].multicast = True  # set multicast to True
-sender[1].destination = "192.168.56.1"  # or provide unicast information.
+# sender[1].destination = "192.168.56.1"  # or provide unicast information.
+#sender[1].destination = "127.0.0.1"  # or provide unicast information.
+sender[1].destination = "192.168.178.39"  # or provide unicast information.
 # Keep in mind that if multicast is on, unicast is not used
 #sender[1].dmx_data = (1, 2, 3, 4)  # some test DMX data
 
