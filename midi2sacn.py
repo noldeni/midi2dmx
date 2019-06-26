@@ -20,6 +20,9 @@ class param:
   fixtureOffset = 30
   dimmer = 255
   olaserverip = "192.168.178.39"
+  #operationMode = "equal"
+  operationMode = "offset"
+  #operationMode = "test"
   channels =	{
     "R": 0,
     "G": 1,
@@ -35,7 +38,7 @@ def MidiInputHandler(event, data=None):
         status, note, velocity = message
         channel = (status & 0xF) + 1
         mappedColorValue = mapToneToColor(note)
-        #__sendDMX__(mappedColorValue)
+        sendColor(mappedColorValue)
         print("Keyboard: Channel[%s] Note[%s] Velocity[%s] Color[%s]" % (channel, note, velocity, mappedColorValue))
     if message[0] & 0xF0 == CONTROL_CHANGE:
         status, note, velocity = message
@@ -44,8 +47,20 @@ def MidiInputHandler(event, data=None):
         elif note == 20:
             channel = (status & 0xF) + 1
             mappedColorValue = mapToneToColor(velocity)
-            #__sendDMX__(mappedColorValue)
+            sendColor(mappedColorValue)
             print("Theremin: Channel[%s] Note[%s] Velocity[%s] Color[%s]" % (channel, note, velocity, mappedColorValue))
+
+def sendColor(hsvColor):
+    if param.operationMode == "equal":
+        print('Equal (Color wheel)')
+        sendEqualColor(hsvColor)
+    elif param.operationMode == "offset":
+        print('Offset')
+        sendOffsetColor(hsvColor)
+    elif param.operationMode == "test":
+        print('Single')
+    else:
+        print('Testmode')
 
 def sendEqualColor(hsvColor):
     defaultValue = (0, 255, 0) # white off, dimmer 100%, effect off
@@ -130,8 +145,8 @@ try:
     # Just wait for keyboard interrupt,
     # everything else is handled via the input callback.
     while True:
-        mappedColorValue = mapToneToColor(random.randint(0, 127))
-        sendOffsetColor(mappedColorValue)
+        #mappedColorValue = mapToneToColor(random.randint(0, 127))
+        #sendOffsetColor(mappedColorValue)
         time.sleep(5)
 except KeyboardInterrupt:
     print('Interrupted.')
