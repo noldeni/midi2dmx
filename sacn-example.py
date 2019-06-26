@@ -35,11 +35,26 @@ def sendEqualColor(hsvColor):
 
 def sendOffsetColor(hsvColor):
     defaultValue = (0, 255, 0) # white off, dimmer 100%, effect off
-    rgb = hsvToRgb(hsvColor, param.hsvSaturation, param.hsvValue)
+    data = ()
+    colorValue = hsvColor
+    for i in range(1, param.fixtures + 1):
+        rgb = hsvToRgb(colorValue, param.hsvSaturation, param.hsvValue)
+        colorValue += param.fixtureOffset
+        data += rgb + defaultValue
+    sender[1].dmx_data = data
+
+def sendBlackout():
+    blackout = (0, 0, 0, 0, 0, 0) # r off, g off, b off, white off, dimmer 0%, effect off
     data = ()
     for i in range(1, param.fixtures + 1):
-        data += rgb + defaultValue
-        rgb = hsvToRgb(hsvColor + param.fixtureOffset, param.hsvSaturation, param.hsvValue)
+        data += blackout
+    sender[1].dmx_data = data
+
+def sendWhite100():
+    white100 = (0, 0, 0, 255, 255, 0) # r off, g off, b off, white 100%, dimmer 100%, effect off
+    data = ()
+    for i in range(1, param.fixtures + 1):
+        data += blackout
     sender[1].dmx_data = data
 
 def mapToneToColor(note):
@@ -94,11 +109,20 @@ try:
     # Just wait for keyboard interrupt,
     # everything else is handled via the input callback.
     while True:
-        mappedColorValue = mapToneToColor(random.randint(0, 127))
-        sendOffsetColor(mappedColorValue)
-        time.sleep(5)
+        for i in range(0, 128):
+            mappedColorValue = mapToneToColor(i)
+            sendOffsetColor(mappedColorValue)
+            time.sleep(.1)
+        for j in range(128, 0, -1):
+            mappedColorValue = mapToneToColor(j)
+            sendOffsetColor(mappedColorValue)
+            time.sleep(.1)
+        #mappedColorValue = mapToneToColor(random.randint(0, 127))
+        #sendOffsetColor(mappedColorValue)
+        #time.sleep(1)
 except KeyboardInterrupt:
     print('Interrupted.')
 finally:
     print("Exit.")
+    sendBlackout()
     sender.stop()  # do not forget to stop the sender
