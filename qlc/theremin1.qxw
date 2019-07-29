@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Workspace>
-<Workspace xmlns="http://www.qlcplus.org/Workspace" CurrentWindow="SimpleDesk">
+<Workspace xmlns="http://www.qlcplus.org/Workspace" CurrentWindow="InputOutputManager">
  <Creator>
   <Name>Q Light Controller Plus</Name>
   <Version>4.12.1</Version>
@@ -142,11 +142,23 @@
    <Speed FadeIn="0" FadeOut="0" Duration="0"/>
    <FixtureVal ID="0">0,0,1,0,2,0,3,0,4,0,5,0</FixtureVal>
   </Function>
-  <Monitor DisplayMode="0" ShowLabels="0">
+  <Monitor DisplayMode="1" ShowLabels="0">
    <Font>Arial,12,-1,5,50,0,0,0,0,0</Font>
    <ChannelStyle>1</ChannelStyle>
    <ValueStyle>1</ValueStyle>
-   <Grid Width="5" Height="3" Depth="5" Units="0"/>
+   <Grid Width="2" Height="3" Depth="2" Units="0"/>
+   <FxItem ID="0" XPos="425.855" YPos="1634.98"/>
+   <FxItem ID="1" XPos="129.278" YPos="1353.61"/>
+   <FxItem ID="2" XPos="3.80228" YPos="912.548"/>
+   <FxItem ID="3" XPos="152.091" YPos="562.738"/>
+   <FxItem ID="4" XPos="444.867" YPos="220.532"/>
+   <FxItem ID="5" XPos="927.757" YPos="11.4068"/>
+   <FxItem ID="6" XPos="1307.98" YPos="190.114"/>
+   <FxItem ID="7" XPos="1673" YPos="467.681"/>
+   <FxItem ID="8" XPos="1844.11" YPos="931.559"/>
+   <FxItem ID="9" XPos="1707.22" YPos="1327"/>
+   <FxItem ID="10" XPos="1437.26" YPos="1669.2"/>
+   <FxItem ID="11" XPos="918.022" YPos="1835.9"/>
   </Monitor>
  </Engine>
  <VirtualConsole>
