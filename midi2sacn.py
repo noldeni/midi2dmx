@@ -76,7 +76,8 @@ def sendOffsetColor(hsvColor):
     data = ()
     for i in range(1, param.fixtures + 1):
         data += rgb + defaultValue
-        rgb = hsvToRgb(hsvColor + param.fixtureOffset, param.hsvSaturation, param.hsvValue)
+        hsvColor += param.fixtureOffset
+        rgb = hsvToRgb(hsvColor, param.hsvSaturation, param.hsvValue)
     sender[1].dmx_data = data
 
 def mapToneToColor(note):
@@ -90,6 +91,7 @@ def map(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
 def hsvToRgb(h, s, v):
+    #print("Color[%s]" % (h))
     h = float(h)
     s = float(s)
     v = float(v)
