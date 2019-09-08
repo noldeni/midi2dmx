@@ -2,6 +2,7 @@
 
 """JACK client that prints all received MIDI events."""
 
+import os
 import math
 import jack
 import binascii
@@ -11,14 +12,15 @@ import sacn
 # Global parameter class
 class param:
     # IP address of sacn server
-    OLA_SERVER_IP = "192.168.178.39"
+    #OLA_SERVER_IP = "192.168.178.39" #gilgalad
+    OLA_SERVER_IP = "192.168.178.41" #colorwheel
 
     # MIDI definitions
     NOTE_ON = 0x90
     NOTE_OFF = 0x80
     CONTROL_CHANGE = 0xB0
 
-    # Input selector
+    # Input selector (PAD 5)
     INPUT_THEREMIN = True
     INPUT_ARDOUR = False
     INPUT_OXYGEN = False
@@ -29,11 +31,17 @@ class param:
     THERMIN_VELOCITY = 0
     THERMIN_PITCH = 0
 
-    # Lighting selector
+    # Lighting selector (PAD 6)
     EQUAL_LIGHTS = False
 
-    # OXYGEN mode selector
+    # OXYGEN mode selector (PAD 6)
     KEY_TOGGLE = False
+
+    # All fixtures off (PAD 7)
+    ALL_OFF = False
+
+    # All fixtures white (PAD 8)
+    ALL_WHITE = False
 
     # OXYGEN Keboard start note
     START_NOTE = 60
@@ -128,7 +136,7 @@ class param:
     PAD_7 = False
     PAD_8 = False
 
-client = jack.Client('MIDI-Monitor')
+client = jack.Client('ThereLightArt')
 port = client.midi_inports.register('input')
 
 
@@ -138,7 +146,6 @@ def process(frames):
         if len(data) == 3:
             status, pitch, velocity = bytes(data)
             channel = (status & 0xF) + 1
-            print('BEFORE FIXTURE_1 {0} Toggle: {1}'.format(param.FXTURE_1, param.KEY_TOGGLE))
             if status & 0xF0 == param.CONTROL_CHANGE and velocity == 0 and pitch in(64, 123):
                 # Ardour track start/end resets all channels -> ignore these
                 pass 
@@ -187,29 +194,77 @@ def process(frames):
                             param.FXTURE_12 = not param.FXTURE_12 if param.KEY_TOGGLE else True
                         # Color selection
                         elif pitch == param.START_NOTE+12:
-                            param.COLOR_1_C = not param.COLOR_1_C if param.KEY_TOGGLE else True
+                            if param.KEY_TOGGLE:
+                                resetColors()
+                                param.COLOR_1_C = not param.COLOR_1_C
+                            else:
+                                param.COLOR_1_C = True
                         elif pitch == param.START_NOTE+13:
-                            param.COLOR_2_Cs = not param.COLOR_2_Cs if param.KEY_TOGGLE else True
+                            if param.KEY_TOGGLE:
+                                resetColors()
+                                param.COLOR_2_Cs = not param.COLOR_2_Cs
+                            else:
+                                param.COLOR_2_Cs = True
                         elif pitch == param.START_NOTE+14:
-                            param.COLOR_3_D = not param.COLOR_3_D if param.KEY_TOGGLE else True
+                            if param.KEY_TOGGLE:
+                                resetColors()
+                                param.COLOR_3_D = not param.COLOR_3_D
+                            else:
+                                param.COLOR_3_D = True
                         elif pitch == param.START_NOTE+15:
-                            param.COLOR_4_Ds = not param.COLOR_4_Ds if param.KEY_TOGGLE else True
+                            if param.KEY_TOGGLE:
+                                resetColors()
+                                param.COLOR_4_Ds = not param.COLOR_4_Ds
+                            else:
+                                param.COLOR_4_Ds = True
                         elif pitch == param.START_NOTE+16:
-                            param.COLOR_5_E = not param.COLOR_5_E if param.KEY_TOGGLE else True
+                            if param.KEY_TOGGLE:
+                                resetColors()
+                                param.COLOR_5_E = not param.COLOR_5_E
+                            else:
+                                param.COLOR_5_E = True
                         elif pitch == param.START_NOTE+17:
-                            param.COLOR_6_F = not param.COLOR_6_F if param.KEY_TOGGLE else True
+                            if param.KEY_TOGGLE:
+                                resetColors()
+                                param.COLOR_6_F = not param.COLOR_6_F
+                            else:
+                                param.COLOR_6_F = True
                         elif pitch == param.START_NOTE+18:
-                            param.COLOR_7_Fs = not param.COLOR_7_Fs if param.KEY_TOGGLE else True
+                            if param.KEY_TOGGLE:
+                                resetColors()
+                                param.COLOR_7_Fs = not param.COLOR_7_Fs
+                            else:
+                                param.COLOR_7_Fs = True
                         elif pitch == param.START_NOTE+19:
-                            param.COLOR_8_G = not param.COLOR_8_G if param.KEY_TOGGLE else True
+                            if param.KEY_TOGGLE:
+                                resetColors()
+                                param.COLOR_8_G = not param.COLOR_8_G
+                            else:
+                                param.COLOR_8_G = True
                         elif pitch == param.START_NOTE+20:
-                            param.COLOR_9_Gs = not param.COLOR_9_Gs if param.KEY_TOGGLE else True
+                            if param.KEY_TOGGLE:
+                                resetColors()
+                                param.COLOR_9_Gs = not param.COLOR_9_Gs
+                            else:
+                                param.COLOR_9_Gs = True
                         elif pitch == param.START_NOTE+21:
-                            param.COLOR_10_A = not param.COLOR_10_A if param.KEY_TOGGLE else True
+                            if param.KEY_TOGGLE:
+                                resetColors()
+                                param.COLOR_10_A = not param.COLOR_10_A
+                            else:
+                                param.COLOR_10_A = True
                         elif pitch == param.START_NOTE+22:
-                            param.COLOR_11_As = not param.COLOR_11_As if param.KEY_TOGGLE else True
+                            if param.KEY_TOGGLE:
+                                resetColors()
+                                param.COLOR_11_As = not param.COLOR_11_As
+                            else:
+                                param.COLOR_11_As = True
                         elif pitch == param.START_NOTE+23:
-                            param.COLOR_12_B = not param.COLOR_12_B if param.KEY_TOGGLE else True
+                            if param.KEY_TOGGLE:
+                                resetColors()
+                                param.COLOR_12_B = not param.COLOR_12_B
+                            else:
+                                param.COLOR_12_B = True
                     elif status & 0xF0 == param.NOTE_OFF:
                         print('{0}: 0x{1} OXYGEN25 NOTE_OFF ch={2} pitch={3} velocity={4}'.format(client.last_frame_time + offset,
                                                 binascii.hexlify(data).decode(),
@@ -265,7 +320,6 @@ def process(frames):
                                 param.COLOR_11_As = False
                             elif pitch == param.START_NOTE+23:
                                 param.COLOR_12_B = False
-                    print('FXTURE_1 {0} Toggle: {1}'.format(param.FXTURE_1, param.KEY_TOGGLE))
             elif channel == 10:
                 # OXYGEN25 Pads
                 if status & 0xF0 == param.NOTE_ON:
@@ -310,11 +364,13 @@ def process(frames):
                             param.KEY_TOGGLE= not param.KEY_TOGGLE
                             print('MODE: Key toggle {}'.format(param.KEY_TOGGLE))
                     elif pitch == 51:
-                        param.PAD_7 = not param.PAD_7
-                        print('PAD 7 {}'.format(param.PAD_7))
+                        # All fixtures off (PAD 7)
+                        param.ALL_OFF = not param.ALL_OFF
+                        print('PANIC: All Off {}'.format(param.ALL_OFF))
                     elif pitch == 49:
-                        param.PAD_8 = not param.PAD_8
-                        print('PAD 8 {}'.format(param.PAD_8))
+                        # All fixtures white (PAD 8)
+                        param.ALL_WHITE = not param.ALL_WHITE
+                        print('PANIC: All white {}'.format(param.ALL_WHITE))
                 elif status & 0xF0 == param.NOTE_OFF:
                     # Ignore NOTE_OFF because we toggle boolean
                     pass
@@ -322,6 +378,7 @@ def process(frames):
                     print('{0}: 0x{1} OXYGEN25 PAD UNKNOWN ch={2} pitch={3} velocity={4}'.format(client.last_frame_time + offset,
                                             binascii.hexlify(data).decode(),
                                             channel, pitch, velocity))
+                printStatus()
             elif channel == 1:
                 # Theremin
                 if param.INPUT_THEREMIN:
@@ -342,7 +399,6 @@ def process(frames):
                 print('UNKNOWN-1 {0}: 0x{1} len:{2}'.format(client.last_frame_time + offset,
                                           binascii.hexlify(data).decode(),
                                           len(data)))
-            print('AFTER FIXTURE_1 {0} Toggle: {1}'.format(param.FXTURE_1, param.KEY_TOGGLE))
         else:
             #pass  # ignore
             print('UNKNOWN-2 {0}: 0x{1} len:{2}'.format(client.last_frame_time + offset,
@@ -358,7 +414,11 @@ def process(frames):
         #                          len(data)))
 
 def sendDmxData():
-    if param.INPUT_THEREMIN:
+    if param.ALL_OFF:
+        allFixturesOff()
+    elif param.ALL_WHITE:
+        allFixturesWhite()
+    elif param.INPUT_THEREMIN:
         mappedColorValue = mapToneToColor(param.THERMIN_PITCH)
         if param.EQUAL_LIGHTS:
             print('Equal (Color wheel)')
@@ -369,22 +429,39 @@ def sendDmxData():
     elif param.INPUT_ARDOUR:
         pass
     elif param.INPUT_OXYGEN:
+        color = 0
         color = param.DEFAULT_COLOR
-        color += param.FIXTURE_COLORS['C'] if param.COLOR_1_C else 0
-        color += param.FIXTURE_COLORS['Cs'] if param.COLOR_2_Cs else 0
-        color += param.FIXTURE_COLORS['D'] if param.COLOR_3_D else 0
-        color += param.FIXTURE_COLORS['Ds'] if param.COLOR_4_Ds else 0
-        color += param.FIXTURE_COLORS['E'] if param.COLOR_5_E else 0
-        color += param.FIXTURE_COLORS['F'] if param.COLOR_6_F else 0
-        color += param.FIXTURE_COLORS['Fs'] if param.COLOR_7_Fs else 0
-        color += param.FIXTURE_COLORS['G'] if param.COLOR_8_G else 0
-        color += param.FIXTURE_COLORS['Gs'] if param.COLOR_9_Gs else 0
-        color += param.FIXTURE_COLORS['A'] if param.COLOR_10_A else 0
-        color += param.FIXTURE_COLORS['As'] if param.COLOR_11_As else 0
-        color += param.FIXTURE_COLORS['B'] if param.COLOR_12_B else 0
+        if param.KEY_TOGGLE:
+            color = param.FIXTURE_COLORS['C'] if param.COLOR_1_C else color
+            color = param.FIXTURE_COLORS['Cs'] if param.COLOR_2_Cs else color
+            color = param.FIXTURE_COLORS['D'] if param.COLOR_3_D else color
+            color = param.FIXTURE_COLORS['Ds'] if param.COLOR_4_Ds else color
+            color = param.FIXTURE_COLORS['E'] if param.COLOR_5_E else color
+            color = param.FIXTURE_COLORS['F'] if param.COLOR_6_F else color
+            color = param.FIXTURE_COLORS['Fs'] if param.COLOR_7_Fs else color
+            color = param.FIXTURE_COLORS['G'] if param.COLOR_8_G else color
+            color = param.FIXTURE_COLORS['Gs'] if param.COLOR_9_Gs else color
+            color = param.FIXTURE_COLORS['A'] if param.COLOR_10_A else color
+            color = param.FIXTURE_COLORS['As'] if param.COLOR_11_As else color
+            color = param.FIXTURE_COLORS['B'] if param.COLOR_12_B else color
+        else:
+            color += param.FIXTURE_COLORS['C'] if param.COLOR_1_C else 0
+            color += param.FIXTURE_COLORS['Cs'] if param.COLOR_2_Cs else 0
+            color += param.FIXTURE_COLORS['D'] if param.COLOR_3_D else 0
+            color += param.FIXTURE_COLORS['Ds'] if param.COLOR_4_Ds else 0
+            color += param.FIXTURE_COLORS['E'] if param.COLOR_5_E else 0
+            color += param.FIXTURE_COLORS['F'] if param.COLOR_6_F else 0
+            color += param.FIXTURE_COLORS['Fs'] if param.COLOR_7_Fs else 0
+            color += param.FIXTURE_COLORS['G'] if param.COLOR_8_G else 0
+            color += param.FIXTURE_COLORS['Gs'] if param.COLOR_9_Gs else 0
+            color += param.FIXTURE_COLORS['A'] if param.COLOR_10_A else 0
+            color += param.FIXTURE_COLORS['As'] if param.COLOR_11_As else 0
+            color += param.FIXTURE_COLORS['B'] if param.COLOR_12_B else 0
         while color > 360:
             color -= 360
+        #print('SEND: color {}'.format(color))
         dmxcolor = hsvToRgb(color, param.HSV_SATURATION, param.HSV_VALUE)
+        #print('SEND: dmxcolor {}'.format(dmxcolor))
 
         data = ()
         # (0, 255, 0) white off, dimmer 100%, effect off
@@ -401,8 +478,74 @@ def sendDmxData():
         data += dmxcolor + (0, 255, 0) if param.FXTURE_10 else dmxcolor + (0, 0 ,0)
         data += dmxcolor + (0, 255, 0) if param.FXTURE_11 else dmxcolor + (0, 0 ,0)
         data += dmxcolor + (0, 255, 0) if param.FXTURE_12 else dmxcolor + (0, 0 ,0)
-        print('SEND: Data {}'.format(data))
+        #print('SEND: Data {}'.format(data))
         sender[1].dmx_data = data
+
+def allFixturesOff():
+    data = ()
+    # (0, 0, 0) R off, G off, B off
+    # (0, 0, 0) white off, dimmer 0%, effect off
+    data += (0, 0 ,0) + (0, 0, 0)
+    data += (0, 0 ,0) + (0, 0, 0)
+    data += (0, 0 ,0) + (0, 0, 0)
+    data += (0, 0 ,0) + (0, 0, 0)
+    data += (0, 0 ,0) + (0, 0, 0)
+    data += (0, 0 ,0) + (0, 0, 0)
+    data += (0, 0 ,0) + (0, 0, 0)
+    data += (0, 0 ,0) + (0, 0, 0)
+    data += (0, 0 ,0) + (0, 0, 0)
+    data += (0, 0 ,0) + (0, 0, 0)
+    data += (0, 0 ,0) + (0, 0, 0)
+    data += (0, 0 ,0) + (0, 0, 0)
+    #print('SEND: Data {}'.format(data))
+    sender[1].dmx_data = data
+
+def allFixturesWhite():
+    data = ()
+    # (0, 0, 0) R off, G off, B off
+    # (255, 255, 0) white on, dimmer 100%, effect off
+    data += (0, 0 ,0) + (255, 255, 0)
+    data += (0, 0 ,0) + (255, 255, 0)
+    data += (0, 0 ,0) + (255, 255, 0)
+    data += (0, 0 ,0) + (255, 255, 0)
+    data += (0, 0 ,0) + (255, 255, 0)
+    data += (0, 0 ,0) + (255, 255, 0)
+    data += (0, 0 ,0) + (255, 255, 0)
+    data += (0, 0 ,0) + (255, 255, 0)
+    data += (0, 0 ,0) + (255, 255, 0)
+    data += (0, 0 ,0) + (255, 255, 0)
+    data += (0, 0 ,0) + (255, 255, 0)
+    data += (0, 0 ,0) + (255, 255, 0)
+    #print('SEND: Data {}'.format(data))
+    sender[1].dmx_data = data
+
+def printStatus():
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print('#' * 80)
+    print('press Return to quit')
+    print('#' * 80)
+    if param.INPUT_ARDOUR:
+        print('INPUT: Ardour')
+    elif param.INPUT_OXYGEN:
+        print('INPUT: Oxygen')
+        if param.KEY_TOGGLE:
+            print('MODE: Toggle')
+        else:
+            print('MODE: Continuous')
+    elif param.INPUT_THEREMIN:
+        print('INPUT: Theremin')
+        if param.EQUAL_LIGHTS:
+            print('MODE: Equal lights')
+        else:
+            print('MODE: Offset')
+    if param.ALL_OFF:
+        print('PANIC 1: All Off')
+    else:
+        print('PANIC 1: Normal')
+    if param.ALL_WHITE:
+        print('PANIC 2: All White')
+    else:
+        print('PANIC 2: Normal')
 
 def sendEqualColor(hsvColor):
     defaultValue = (0, 255, 0) # white off, dimmer 100%, effect off
@@ -460,6 +603,20 @@ def hsvToRgb(h, s, v):
     r, g, b = int(r * 255), int(g * 255), int(b * 255)
     return (r, g, b)
 
+def resetColors():
+    param.COLOR_1_C = False
+    param.COLOR_2_Cs = False
+    param.COLOR_3_D = False
+    param.COLOR_4_Ds = False
+    param.COLOR_5_E = False
+    param.COLOR_6_F = False
+    param.COLOR_7_Fs = False
+    param.COLOR_8_G = False
+    param.COLOR_9_Gs = False
+    param.COLOR_10_A = False
+    param.COLOR_11_As = False
+    param.COLOR_12_B = False
+
 sender = sacn.sACNsender()  # provide an IP-Address to bind to if you are using Windows and want to use multicast
 sender.start()  # start the sending thread
 sender.activate_output(1)  # start sending out data in the 1st universe
@@ -472,9 +629,7 @@ sender[1].destination = param.OLA_SERVER_IP  # or provide unicast information.
 #sender[1].dmx_data = (1, 2, 3, 4)  # some test DMX data
 
 with client:
-    print('#' * 80)
-    print('press Return to quit')
-    print('#' * 80)
+    printStatus()
     input()
 
 sender.stop()  # do not forget to stop the sender
