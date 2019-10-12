@@ -37,6 +37,9 @@ class param:
     # OXYGEN mode selector (PAD 6)
     KEY_TOGGLE = False
 
+    # Ardour mode selector (PAD 6)
+    LOOP_TOGGLE = False
+
     # All fixtures off (PAD 7)
     ALL_OFF = False
 
@@ -136,6 +139,25 @@ class param:
     PAD_7 = False
     PAD_8 = False
 
+    # Ardour values
+    ARDOUR_PITCH = 0
+    ARDOUR_VELOCITY = 0
+
+    LOOP_COLORS = {
+        0: 0,
+        10: 30,
+        20: 60,
+        30: 90,
+        40: 120,
+        50: 150,
+        60: 180,
+        70: 210,
+        80: 240,
+        90: 270,
+        100: 300,
+        110: 330,
+    }
+
 client = jack.Client('ThereLightArt')
 port = client.midi_inports.register('input')
 
@@ -156,6 +178,8 @@ def process(frames):
                         print('{0}: 0x{1} ARDOUR NOTE_ON ch={2} pitch={3} velocity={4}'.format(client.last_frame_time + offset,
                                                 binascii.hexlify(data).decode(),
                                                 channel, pitch, velocity))
+                        param.ARDOUR_PITCH = pitch
+                        param.ARDOUR_VELOCITY = velocity
                     elif status & 0xF0 == param.NOTE_OFF:
                         print('{0}: 0x{1} ARDOUR NOTE_OFF ch={2} pitch={3} velocity={4}'.format(client.last_frame_time + offset,
                                                 binascii.hexlify(data).decode(),
@@ -363,6 +387,10 @@ def process(frames):
                             # In Oxygen mode PAD 6 switches between key toggle and key on/off
                             param.KEY_TOGGLE= not param.KEY_TOGGLE
                             print('MODE: Key toggle {}'.format(param.KEY_TOGGLE))
+                        elif param.INPUT_ARDOUR:
+                            # In Ardour mode PAD 6 switches between fixture loop and color loop
+                            param.LOOP_TOGGLE= not param.LOOP_TOGGLE
+                            print('MODE: Loop toggle {}'.format(param.LOOP_TOGGLE))
                     elif pitch == 51:
                         # All fixtures off (PAD 7)
                         param.ALL_OFF = not param.ALL_OFF
@@ -427,7 +455,29 @@ def sendDmxData():
             print('Offset')
             sendOffsetColor(mappedColorValue)
     elif param.INPUT_ARDOUR:
-        pass
+        if param.LOOP_TOGGLE:
+            color = param.LOOP_COLORS[param.ARDOUR_VELOCITY]
+            sendOffsetColor(color)
+        else:
+            dmxcolor = hsvToRgb(color, param.HSV_SATURATION, param.HSV_VALUE)
+            data = ()
+            # (0, 255, 0) white off, dimmer 100%, effect off
+            # (0, 0, 0) white off, dimmer 0%, effect off
+            data += dmxcolor + (0, 255, 0) if param.ARDOUR_PITCH == 60 else dmxcolor + (0, 0 ,0)
+            data += dmxcolor + (0, 255, 0) if param.ARDOUR_PITCH == 61 else dmxcolor + (0, 0 ,0)
+            data += dmxcolor + (0, 255, 0) if param.ARDOUR_PITCH == 62 else dmxcolor + (0, 0 ,0)
+            data += dmxcolor + (0, 255, 0) if param.ARDOUR_PITCH == 63 else dmxcolor + (0, 0 ,0)
+            data += dmxcolor + (0, 255, 0) if param.ARDOUR_PITCH == 64 else dmxcolor + (0, 0 ,0)
+            data += dmxcolor + (0, 255, 0) if param.ARDOUR_PITCH == 65 else dmxcolor + (0, 0 ,0)
+            data += dmxcolor + (0, 255, 0) if param.ARDOUR_PITCH == 66 else dmxcolor + (0, 0 ,0)
+            data += dmxcolor + (0, 255, 0) if param.ARDOUR_PITCH == 67 else dmxcolor + (0, 0 ,0)
+            data += dmxcolor + (0, 255, 0) if param.ARDOUR_PITCH == 68 else dmxcolor + (0, 0 ,0)
+            data += dmxcolor + (0, 255, 0) if param.ARDOUR_PITCH == 69 else dmxcolor + (0, 0 ,0)
+            data += dmxcolor + (0, 255, 0) if param.ARDOUR_PITCH == 70 else dmxcolor + (0, 0 ,0)
+            data += dmxcolor + (0, 255, 0) if param.ARDOUR_PITCH == 71 else dmxcolor + (0, 0 ,0)
+            #print('SEND: Data {}'.format(data))
+            sender[1].dmx_data = data
+            pass
     elif param.INPUT_OXYGEN:
         color = 0
         color = param.DEFAULT_COLOR
