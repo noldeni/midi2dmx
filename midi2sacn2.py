@@ -459,6 +459,7 @@ def sendDmxData():
             color = param.LOOP_COLORS[param.ARDOUR_VELOCITY]
             sendOffsetColor(color)
         else:
+            color = param.LOOP_COLORS[param.ARDOUR_VELOCITY]
             dmxcolor = hsvToRgb(color, param.HSV_SATURATION, param.HSV_VALUE)
             data = ()
             # (0, 255, 0) white off, dimmer 100%, effect off
